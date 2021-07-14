@@ -3,7 +3,7 @@ reload: PingPong.scala
 askTypeCompletion at PingPong.scala(10,31)
 ================================================================================
 [response] askTypeCompletion at (10,31)
-retrieved 32 members
+retrieved 33 members
 [inaccessible] private[this] val ping: Ping
 [inaccessible] protected[package lang] def clone(): Object
 [inaccessible] protected[package lang] def finalize(): Unit
@@ -33,12 +33,13 @@ final def wait(x$1: Long): Unit
 final def wait(x$1: Long, x$2: Int): Unit
 override def toString(): String
 private[this] val name: String
+private[this] val self: Pong
 ================================================================================
 
 askTypeCompletion at PingPong.scala(19,28)
 ================================================================================
 [response] askTypeCompletion at (19,28)
-retrieved 33 members
+retrieved 34 members
 [inaccessible] protected[package lang] def clone(): Object
 [inaccessible] protected[package lang] def finalize(): Unit
 def +(other: String): String
@@ -69,6 +70,7 @@ final def wait(x$1: Long): Unit
 final def wait(x$1: Long, x$2: Int): Unit
 override def toString(): String
 private[this] val pong: Pong
+private[this] val self: Ping
 ================================================================================
 
 askType at PingPong.scala(8,18)

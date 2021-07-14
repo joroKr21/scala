@@ -3,7 +3,7 @@ reload: Completions.scala
 askTypeCompletion at Completions.scala(17,9)
 ================================================================================
 [response] askTypeCompletion at (17,9)
-retrieved 37 members
+retrieved 38 members
 [inaccessible] private def privateM: String
 [inaccessible] private[this] val privateV: String
 [inaccessible] private[this] val protectedV: String
@@ -38,4 +38,5 @@ final private[this] val CONST_STRING: String("constant")
 lazy val foo: Int
 private[package test] def pkgPrivateM: String
 private[this] val pkgPrivateV: String
+private[this] val self: test.Compat.type
 ================================================================================
