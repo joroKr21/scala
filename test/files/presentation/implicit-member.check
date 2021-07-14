@@ -3,7 +3,7 @@ reload: ImplicitMember.scala
 askTypeCompletion at ImplicitMember.scala(7,7)
 ================================================================================
 [response] askTypeCompletion at (7,7)
-retrieved 32 members
+retrieved 33 members
 def +(other: String): String
 def ->[B](y: B): (Implicit.type, B)
 def ensuring(cond: Boolean): Implicit.type
@@ -30,6 +30,7 @@ final def wait(): Unit
 final def wait(x$1: Long): Unit
 final def wait(x$1: Long, x$2: Int): Unit
 implicit def AppliedImplicit[A](x: A): Implicit.AppliedImplicit[A]
+private[this] val self: Implicit.type
 private[this] val x: Implicit.type
 protected[package lang] def clone(): Object
 protected[package lang] def finalize(): Unit

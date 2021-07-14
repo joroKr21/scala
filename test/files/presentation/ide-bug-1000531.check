@@ -3,7 +3,7 @@ reload: CrashOnLoad.scala, TestIterable.java
 askTypeCompletion at CrashOnLoad.scala(9,11)
 ================================================================================
 [response] askTypeCompletion at (9,11)
-retrieved 30 members
+retrieved 31 members
 [inaccessible] protected[package lang] def clone(): Object
 [inaccessible] protected[package lang] def finalize(): Unit
 def +(other: String): String
@@ -32,4 +32,5 @@ final def synchronized[T0](x$1: T0): T0
 final def wait(): Unit
 final def wait(x$1: Long): Unit
 final def wait(x$1: Long, x$2: Int): Unit
+private[this] val self: other.TestIterator[Nothing]
 ================================================================================

@@ -838,7 +838,6 @@ trait Symbols extends api.Symbols { self: SymbolTable =>
       isAbstractType && !isExistential && !isTypeParameterOrSkolem && isLocalToBlock
 
     /** change name by appending $$<fully-qualified-name-of-class `base`>
-     *  Do the same for any accessed symbols to preserve serialization compatibility.
      *  Implementation in TermSymbol.
      */
     def expandName(base: Symbol): Unit = ()
@@ -2991,13 +2990,10 @@ trait Symbols extends api.Symbols { self: SymbolTable =>
       this
     }
 
-    /** change name by appending $$<fully-qualified-name-of-class `base`>
-     *  Do the same for any accessed symbols to preserve serialization compatibility.
-     */
+    /** change name by appending $$<fully-qualified-name-of-class `base`> */
     override def expandName(base: Symbol): Unit = {
       if (!hasFlag(EXPANDEDNAME)) {
         setFlag(EXPANDEDNAME)
-        if (hasAccessorFlag && !isDeferred) accessed.expandName(base)
         name = nme.expandedName(name.toTermName, base)
       }
     }

@@ -3,7 +3,7 @@ reload: CallccInterpreter.scala
 askTypeCompletion at CallccInterpreter.scala(51,34)
 ================================================================================
 [response] askTypeCompletion at (51,34)
-retrieved 66 members
+retrieved 67 members
 abstract trait Term extends AnyRef
 abstract trait Value extends AnyRef
 case class Add extends callccInterpreter.Term with Product with Serializable
@@ -59,6 +59,7 @@ object Lam
 object M
 object Num
 object Var
+private[this] val self: callccInterpreter.type
 private[this] val term0: callccInterpreter.App
 private[this] val term1: callccInterpreter.App
 private[this] val term2: callccInterpreter.Add
