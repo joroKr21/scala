@@ -43,6 +43,9 @@ warn-unused-privates.scala:68: warning: private var s2 in class StableAccessors 
 warn-unused-privates.scala:69: warning: private var s3 in class StableAccessors is never used
   private var s3: Int = 0 // warn, never got
               ^
+warn-unused-privates.scala:73: warning: private var s6 in class StableAccessors is never used
+  private[this] var s6 = 0 // warn, never got
+                    ^
 warn-unused-privates.scala:87: warning: private default argument in trait DefaultArgs is never used
   private def bippy(x1: Int, x2: Int = 10, x3: Int = 15): Int = x1 + x2 + x3
                              ^
@@ -73,6 +76,18 @@ warn-unused-privates.scala:233: warning: private class for your eyes only in obj
 warn-unused-privates.scala:249: warning: private class D in class nonprivate alias is enclosing is never used
   private class D extends C2   // warn
                 ^
+warn-unused-privates.scala:53: warning: local var v5 in trait Accessors is never updated: consider using immutable val
+  private[this] var v5 = 0 // warn, never set
+                    ^
+warn-unused-privates.scala:54: warning: local var v6_$eq in trait Accessors is never updated: consider using immutable val
+  private[this] var v6 = 0 // warn, never got
+                    ^
+warn-unused-privates.scala:55: warning: local var v7 in trait Accessors is never updated: consider using immutable val
+  private[this] var v7 = 0 // no warn
+                    ^
+warn-unused-privates.scala:55: warning: local var v7_$eq in trait Accessors is never updated: consider using immutable val
+  private[this] var v7 = 0 // no warn
+                    ^
 warn-unused-privates.scala:72: warning: local var s5 in class StableAccessors is never updated: consider using immutable val
   private[this] var s5 = 0 // warn, never set
                     ^
@@ -80,5 +95,5 @@ warn-unused-privates.scala:114: warning: local var x in method f2 is never updat
     var x = 100 // warn about it being a var
         ^
 error: No warnings can be incurred under -Werror.
-27 warnings
+32 warnings
 1 error

@@ -70,7 +70,7 @@ class StableAccessors {
   private var s4: Int = 0 // no warn
 
   private[this] var s5 = 0 // warn, never set
-  private[this] var s6 = 0 // no warn, limitation
+  private[this] var s6 = 0 // warn, never got
   private[this] var s7 = 0 // no warn
 
   def bippy(): Int = {

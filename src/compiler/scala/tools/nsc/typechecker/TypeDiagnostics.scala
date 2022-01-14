@@ -504,7 +504,7 @@ trait TypeDiagnostics extends splain.SplainDiagnostics {
 
   class UnusedPrivates extends Traverser {
     import UnusedPrivates.ignoreNames
-    def isEffectivelyPrivate(sym: Symbol): Boolean = false
+
     val defnTrees = ListBuffer[MemberDef]()
     val targets   = mutable.Set[Symbol]()
     val setVars   = mutable.Set[Symbol]()
@@ -512,21 +512,24 @@ trait TypeDiagnostics extends splain.SplainDiagnostics {
     val params    = mutable.Set[Symbol]()
     val patvars   = mutable.Set[Symbol]()
 
-    def varsWithoutSetters = defnTrees.iterator.map(_.symbol).filter(t => t.isVar && !isExisting(t.setter))
+    def defnSymbols = defnTrees.iterator.map(_.symbol)
+    def localVars   = defnSymbols.filter(t => isLocal(t) && t.isVar)
 
+    def isLocal(sym: Symbol) = sym.isPrivateLocal || sym.isLocalToBlock
+    def isLocalOrPrivate(sym: Symbol) = sym.isPrivate || sym.isLocalToBlock
+    def isEffectivelyPrivate(sym: Symbol): Boolean = false
+
+    def qualifiesType(sym: Symbol) = !sym.isDefinedInPackage
     def qualifiesTerm(sym: Symbol) = (
-      (sym.isModule || sym.isMethod || sym.isPrivateLocal || sym.isLocalToBlock || isEffectivelyPrivate(sym))
+      (sym.isModule || sym.isMethod || isLocal(sym) || isEffectivelyPrivate(sym))
         && !nme.isLocalName(sym.name)
         && !sym.isParameter
         && !sym.isParamAccessor       // could improve this, but it's a pain
         && !sym.isEarlyInitialized    // lots of false positives in the way these are encoded
         && !(sym.isGetter && sym.accessed.isEarlyInitialized)
-      )
-    def qualifiesType(sym: Symbol) = !sym.isDefinedInPackage
-    def qualifies(sym: Symbol) = (
-      (sym ne null)
-        && (sym.isTerm && qualifiesTerm(sym) || sym.isType && qualifiesType(sym))
-      )
+    )
+
+    def qualifies(sym: Symbol) = (sym ne null) && (sym.isTerm && qualifiesTerm(sym) || sym.isType && qualifiesType(sym))
     def isExisting(sym: Symbol) = sym != null && sym.exists
 
     // so trivial that it never consumes params
@@ -541,28 +544,29 @@ trait TypeDiagnostics extends splain.SplainDiagnostics {
       t match {
         case m: MemberDef if qualifies(sym) && !t.isErrorTyped =>
           t match {
-            case ValDef(mods@_, name@_, tpt@_, rhs@_) if wasPatVarDef(t) =>
+            case t: ValDef if wasPatVarDef(t) =>
               if (settings.warnUnusedPatVars && !atBounded(t)) patvars += sym
-            case DefDef(mods@_, name@_, tparams@_, vparamss, tpt@_, rhs@_) if !sym.isAbstract && !sym.isDeprecated && !sym.isMacro =>
-              if (sym.isPrimaryConstructor)
-                for (cpa <- sym.owner.constrParamAccessors if cpa.isPrivateLocal) params += cpa
+            case t: DefDef if !sym.isAbstract && !sym.isDeprecated && !sym.isMacro =>
+              if (sym.isPrimaryConstructor) params ++= sym.owner.constrParamAccessors.filter(_.isPrivateLocal)
               else if (sym.isSynthetic && sym.isImplicit) return
-              else if (!sym.isConstructor && !isTrivial(rhs))
-                for (vs <- vparamss) params ++= vs.map(_.symbol)
+              else if (!sym.isConstructor && !isTrivial(t.rhs)) for (vs <- t.vparamss) params ++= vs.map(_.symbol)
               defnTrees += m
             case _ =>
               defnTrees += m
         }
-        case CaseDef(pat, guard@_, rhs@_) if settings.warnUnusedPatVars && !t.isErrorTyped =>
-          pat.foreach {
-            case b @ Bind(n, _) if !atBounded(b) && n != nme.DEFAULT_CASE => patvars += b.symbol
-            case _ =>
-        }
-        case _: RefTree if isExisting(sym)            => targets += sym
-        case Assign(lhs, _) if isExisting(lhs.symbol) => setVars += lhs.symbol
-        case Function(ps, _) if settings.warnUnusedParams && !t.isErrorTyped => params ++=
-          ps.filterNot(p => atBounded(p) || p.symbol.isSynthetic).map(_.symbol)
-        case _                                        =>
+        case t: CaseDef if settings.warnUnusedPatVars && !t.isErrorTyped =>
+          for (b @ Bind(n, _) <- t.pat) if (!atBounded(b) && n != nme.DEFAULT_CASE) patvars += b.symbol
+        case _: RefTree if isExisting(sym) =>
+          targets += sym
+        case Assign(lhs, rhs) if isExisting(lhs.symbol) =>
+          setVars += lhs.symbol
+          if (isLocal(lhs.symbol)) {
+            super.traverse(rhs)
+            return
+          }
+        case Function(ps, _) if settings.warnUnusedParams && !t.isErrorTyped =>
+          params ++= ps.filterNot(p => atBounded(p) || p.symbol.isSynthetic).map(_.symbol)
+        case _ =>
       }
 
       if (t.tpe ne null) {
@@ -570,7 +574,7 @@ trait TypeDiagnostics extends splain.SplainDiagnostics {
           // Include references to private/local aliases (which might otherwise refer to an enclosing class)
           val isAlias = {
             val td = tp.typeSymbolDirect
-            td.isAliasType && (td.isLocalToBlock || td.isPrivate)
+            td.isAliasType && isLocalOrPrivate(td)
           }
           // Ignore type references to an enclosing class. A reference to C must be outside C to avoid warning.
           if (isAlias || !currentOwner.hasTransOwner(tp.typeSymbol)) tp match {
@@ -599,9 +603,9 @@ trait TypeDiagnostics extends splain.SplainDiagnostics {
       m.isType
         && !isSuppressed(m)
         && !m.isTypeParameterOrSkolem // would be nice to improve this
-        && (m.isPrivate || m.isLocalToBlock || isEffectivelyPrivate(m))
-        && !(treeTypes.exists(_.exists(_.typeSymbolDirect == m)))
-      )
+        && (isLocalOrPrivate(m) || isEffectivelyPrivate(m))
+        && !treeTypes.exists(_.exists(_.typeSymbolDirect == m))
+    )
     def isSyntheticWarnable(sym: Symbol) = {
       def privateSyntheticDefault: Boolean =
         cond(nme.defaultGetterToMethod(sym.name)) {
@@ -614,13 +618,14 @@ trait TypeDiagnostics extends splain.SplainDiagnostics {
       m.isTerm
         && !isSuppressed(m)
         && (!m.isSynthetic || isSyntheticWarnable(m))
-        && ((m.isPrivate && !(m.isConstructor && m.owner.isAbstract)) || m.isLocalToBlock || isEffectivelyPrivate(m))
+        && (isLocalOrPrivate(m) || isEffectivelyPrivate(m))
+        && !(m.isConstructor && m.owner.isAbstract)
         && !targets(m)
         && !(m.name == nme.WILDCARD)              // e.g. val _ = foo
         && (m.isValueParameter || !ignoreNames(m.name.toTermName)) // serialization/repl methods
         && !isConstantType(m.info.resultType)     // subject to constant inlining
         && !treeTypes.exists(_ contains m)        // e.g. val a = new Foo ; new a.Bar
-      )
+    )
     def isUnusedParam(m: Symbol): Boolean = (
       isUnusedTerm(m)
         && !m.isDeprecated
@@ -650,7 +655,7 @@ trait TypeDiagnostics extends splain.SplainDiagnostics {
       clean.sortBy(treepos)
     }
     // local vars which are never set, except those already returned in unused
-    def unsetVars = varsWithoutSetters.filter(v => !isSuppressed(v) && !setVars(v) && !isUnusedTerm(v)).toList.sortBy(sympos)
+    def unsetVars = localVars.filter(v => !isSuppressed(v) && !setVars(v) && !isUnusedTerm(v)).toList.sortBy(sympos)
     def unusedParams = params.iterator.filter(isUnusedParam).toList.sortBy(sympos)
     def inDefinedAt(p: Symbol) = p.owner.isMethod && p.owner.name == nme.isDefinedAt && p.owner.owner.isAnonymousFunction
     def unusedPatVars = patvars.toList.filter(p => isUnusedTerm(p) && !inDefinedAt(p)).sortBy(sympos)

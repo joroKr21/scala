@@ -20,6 +20,16 @@ trait Locals {
     var x = 100 // warn about it being a var
     x
   }
+  def f3 = {
+    var z = 200 // warn, never got
+    z = 300
+    400
+  }
+  def f4 = {
+    var q = 17 // no warn, limitation
+    q += 42
+    313
+  }
 }
 
 object Types {
