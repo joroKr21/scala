@@ -452,11 +452,11 @@ trait SeqOps[+A, +CC[_], +C] extends Any
     }
 
   /** Finds first index where this $coll contains a given sequence as a slice.
-    *  $mayNotTerminateInf
-    *  @param  that    the sequence to test
-    *  @return  the first index `>= 0` such that the elements of this $coll starting at this index
-    *           match the elements of sequence `that`, or `-1` if no such subsequence exists.
-    */
+   *  $mayNotTerminateInf
+   *  @param  that    the sequence to test
+   *  @return  the first index `>= 0` such that the elements of this $coll starting at this index
+   *           match the elements of sequence `that`, or `-1` if no such subsequence exists.
+   */
   @deprecatedOverriding("Override indexOfSlice(that, from) instead - indexOfSlice(that) calls indexOfSlice(that, 0)", "2.13.0")
   def indexOfSlice[B >: A](that: Seq[B]): Int = indexOfSlice(that, 0)
 
