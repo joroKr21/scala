@@ -417,9 +417,9 @@ trait SeqOps[+A, +CC[_], +C] extends Any
     case _ => toSeq
   }
 
-  /** Finds first index after or at a start index where this $coll contains a given sequence as a slice.
+  /** Finds first index at or after a start index where this $coll contains a given sequence as a slice.
    *  $mayNotTerminateInf
-   *  @param  that    the sequence to test
+   *  @param  that    the pattern sequence to search for
    *  @param  from    the start index
    *  @return  the first index `>= from` such that the elements of this $coll starting at this index
    *           match the elements of sequence `that`, or `-1` if no such subsequence exists.
@@ -435,7 +435,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
         if (from > l) -1
         else if (tl < 1) clippedFrom
         else if (l < tl) -1
-        else SeqOps.kmpSearch(toGenericSeq, clippedFrom, l, that, 0, tl, forward = true)
+        else SeqOps.kmpSearch(S = toGenericSeq, m0 = clippedFrom, m1 = l, W = that, n0 = 0, n1 = tl, forward = true)
       }
       else {
         var i = from
@@ -477,7 +477,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
     if (end < 0) -1
     else if (tl < 1) clippedL
     else if (l < tl) -1
-    else SeqOps.kmpSearch(toGenericSeq, 0, clippedL+tl, that, 0, tl, forward = false)
+    else SeqOps.kmpSearch(S = toGenericSeq, m0 = 0, m1 = clippedL+tl, W = that, n0 = 0, n1 = tl, forward = false)
   }
 
   /** Finds last index where this $coll contains a given sequence as a slice.
@@ -1052,9 +1052,10 @@ object SeqOps {
      *  @param  W    The target sequence
      *  @param  n0   The first element in the target sequence that we should use
      *  @param  n1   The far end of the target sequence that we should use (exclusive)
+     *  @param  forward Direction of search (from beginning==true, from end==false)
      *  @return Target packed in an IndexedSeq (taken from iterator unless W already is an IndexedSeq)
      */
-    def kmpOptimizeWord[B](W: Seq[B], n0: Int, n1: Int, forward: Boolean): IndexedSeqView[B] = W match {
+    def kmpOptimizeWord(W: Seq[B], n0: Int, n1: Int, forward: Boolean): IndexedSeqView[B] = W match {
       case iso: IndexedSeq[B] =>
         // Already optimized for indexing--use original (or custom view of original)
         if (forward && n0==0 && n1==W.length) iso.view
@@ -1091,7 +1092,7 @@ object SeqOps {
      *  @param  wlen Just in case we're only IndexedSeq and not IndexedSeqOptimized
      *  @return KMP jump table for target sequence
      */
-    def kmpJumpTable[B](Wopt: IndexedSeqView[B], wlen: Int) = {
+    def kmpJumpTable(Wopt: IndexedSeqView[B], wlen: Int) = {
       val arr = Array.ofDim[Int](wlen)
       var pos = 2
       var cnd = 0
