@@ -432,10 +432,11 @@ trait SeqOps[+A, +CC[_], +C] extends Any
       val tl = that.knownSize
       if (l >= 0 && tl >= 0) {
         val clippedFrom = math.max(0, from)
-        if (from > l) -1
-        else if (tl < 1) clippedFrom
+        if (from >= l) -1
+        else if (tl == 0) clippedFrom
         else if (l < tl) -1
-        else SeqOps.kmpSearch(S = toGenericSeq, m0 = clippedFrom, m1 = l, W = that, n0 = 0, n1 = tl, forward = true)
+        else
+          SeqOps.kmpSearch(S = toGenericSeq, m0 = clippedFrom, m1 = l, W = that, n0 = 0, n1 = tl, forward = true)
       }
       else {
         var i = from
