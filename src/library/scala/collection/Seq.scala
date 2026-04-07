@@ -116,7 +116,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
     * Note that :-ending operators are right associative (see example).
     * A mnemonic for `+:` vs. `:+` is: the COLon goes on the COLlection side.
     */
-  @`inline` final def +: [B >: A](elem: B): CC[B] = prepended(elem)
+  @inline final def +: [B >: A](elem: B): CC[B] = prepended(elem)
 
   /** A copy of this $coll with an element appended.
     *
@@ -146,7 +146,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
     * Note that :-ending operators are right associative (see example).
     * A mnemonic for `+:` vs. `:+` is: the COLon goes on the COLlection side.
     */
-  @`inline` final def :+ [B >: A](elem: B): CC[B] = appended(elem)
+  @inline final def :+ [B >: A](elem: B): CC[B] = appended(elem)
 
   /** As with `:++`, returns a new collection containing the elements from the left operand followed by the
     *  elements from the right operand.
@@ -166,7 +166,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
   })
 
   /** Alias for `prependedAll`. */
-  @`inline` override final def ++: [B >: A](prefix: IterableOnce[B]): CC[B] = prependedAll(prefix)
+  @inline override final def ++: [B >: A](prefix: IterableOnce[B]): CC[B] = prependedAll(prefix)
 
   /** Returns a new $coll containing the elements from the left hand operand followed by the elements from the
     *  right hand operand. The element type of the $coll is the most specific superclass encompassing
@@ -330,7 +330,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
     *           such that every element of the segment satisfies the predicate `p`.
     */
   @deprecated("Use segmentLength instead of prefixLength", "2.13.0")
-  @`inline` final def prefixLength(p: A => Boolean): Int = segmentLength(p, 0)
+  @inline final def prefixLength(p: A => Boolean): Int = segmentLength(p, 0)
 
   /** Finds index of the first element satisfying some predicate after or at some start index.
     *
