@@ -482,7 +482,7 @@ class LazyListLazinessTest {
   def indexOfSlice_properlyLazy(): Unit = {
     assertLazyAllSkipping(6)(_.indexOfSlice(0 to 5))
     assertLazyAllSkipping(4)(_.indexOfSlice(1 to 3))
-    assertLazyAllSkipping(10)(_.indexOfSlice(6 to 9, 5))
+    assertLazyAllSkipping(10)(_.indexOfSlice(6 to 9, from = 5))
 
     // check laziness of slice when it is a `LazyList`
     val checker = new OpLazinessChecker

@@ -433,22 +433,12 @@ trait SeqOps[+A, +CC[_], +C] extends Any
       val l = knownSize
       val tl = that.knownSize
       val clippedFrom = math.max(0, from)
-      if (l >= 0 && tl >= 0) {
-        if (from >= l) -1
-        else if (tl == 0) clippedFrom
-        else if (l < tl) -1
-        else SeqOps.kmpSearch(S = s, m0 = clippedFrom, m1 = l, W = that, n0 = 0, n1 = tl, forward = true)
+      if (l >= 0) {
+        if (from > l) return -1
+        if (tl == 0) return clippedFrom
+        if (tl >= 0 && l < tl) return -1
       }
-      else {
-        val thisLength =
-          if (l < 0) {
-            if (this.isInstanceOf[IndexedSeq[_]]) this.length // probably weird but OK
-            else Int.MaxValue // for nonindexed, it will iterate
-          }
-          else l
-        val otherLength = if (tl < 0) that.length else tl
-        SeqOps.kmpSearch(S = s, m0 = clippedFrom, m1 = thisLength, W = that, n0 = 0, n1 = otherLength, forward = true)
-      }
+      SeqOps.kmpSearch(S = s, m0 = clippedFrom, m1 = l, W = that, n0 = 0, n1 = tl, forward = true)
     }
 
   /** Finds first index where this $coll contains a given sequence as a slice.
@@ -523,7 +513,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
    *  @return     `true` if this $coll has an element that is equal (as
    *              determined by `==`) to `elem`, `false` otherwise.
    */
-  def contains[A1 >: A](elem: A1): Boolean = exists (_ == elem)
+  def contains[A1 >: A](elem: A1): Boolean = exists(_ == elem)
 
   @deprecated("Use .reverseIterator.map(f).to(...) instead of .reverseMap(f)", "2.13.0")
   def reverseMap[B](f: A => B): CC[B] = iterableFactory.from(new View.Map(View.fromIteratorProvider(() => reverseIterator), f))
@@ -1041,8 +1031,8 @@ object SeqOps {
   *  @param  m0      First index of S to consider
   *  @param  m1      Last index of S to consider (exclusive)
   *  @param  W       Target sequence
-  *  @param  n0      First index of W to match
-  *  @param  n1      Last index of W to match (exclusive)
+  *  @param  n0      First index of W to match (0)
+  *  @param  n1      Last index of W to match (exclusive) (W.length if known)
   *  @param  forward Direction of search (from beginning==true, from end==false)
   *  @return Index of start of sequence if found, -1 if not (relative to beginning of S, not m0).
   */
@@ -1136,16 +1126,57 @@ object SeqOps {
       -1
     }
 
+    def clipped(): Int = {
+      def clipR(x: Int, y: Int) = if (x < y) x else -1
+      def clipL(x: Int, y: Int) = if (x > y) x else -1
+      if (forward) {
+        val x = S.indexOf(W(n0), m0)
+        if (m1 >= 0) clipR(x, m1)
+        else x
+      }
+      else
+        clipL(S.lastIndexOf(W(n0), m1-1), m0-1)
+    }
+
     // We had better not index into S directly!
+    // Also cope with m1 < 0 || n1 < 0 for collections of unknown size.
     def kmpUnindexed(): Int = {
-      val iter = S.iterator.drop(m0)
+      val iter = S.iterator.drop(m0).buffered
+      // on empty pattern, return m0 if it is a valid index in S or S.length for position to append
+      if (W.isEmpty)
+        if (iter.hasNext) return m0
+        else {
+          val len = S.length
+          if (m0 <= len) return len
+          else return -1
+        }
+      // enhance laziness by pre-scanning for head of pattern; T could be fully lazy.
+      var n1b = n1
+      var moffset = 0
+      if (n1b < 0) {
+        val head = W(0) // already forced isEmpty
+        while (iter.hasNext && iter.head != head) {
+          iter.next()
+          moffset += 1
+        }
+        if (!iter.hasNext)
+          return -1
+        n1b = W.length // force W
+      }
+      if (n1b == n0+1)
+        clipped()
+      else
+        kmpUnindexedN1(iter, moffset, n1b)
+    }
+    def kmpUnindexedN1(iter: Iterator[B], moffset: Int, n1: Int): Int = {
       val Wopt = kmpOptimizeWord(W, n0, n1, forward = true)
       val T = kmpJumpTable(Wopt, n1-n0)
       val cache = Array.ofDim[AnyRef](n1-n0)  // Ring buffer--need a quick way to do a look-behind
-      var largest = 0
-      var i, m = 0
+      var largest = moffset
+      var i = 0
+      var m = moffset
       var answer = -1
-      while (m+m0+n1-n0 <= m1) {
+      while (m1 < 0 || m+m0+n1-n0 <= m1) {
         while (i+m >= largest) {
           if (!iter.hasNext) return answer
           cache(largest%(n1-n0)) = iter.next().asInstanceOf[AnyRef]
@@ -1172,25 +1203,19 @@ object SeqOps {
       }
       answer
     }
-
+    val sized = m1 >= 0 && n1 >= 0
     // Check for redundant case when target has single valid element
-    if (n1 == n0+1) {
-      def clipR(x: Int, y: Int) = if (x < y) x else -1
-      def clipL(x: Int, y: Int) = if (x > y) x else -1
-      if (forward)
-        clipR(S.indexOf(W(n0), m0), m1)
-      else
-        clipL(S.lastIndexOf(W(n0), m1-1), m0-1)
-    }
+    if (sized && n1 == n0+1)
+      clipped()
     // Check for redundant case when both sequences are same size
-    else if (m1-m0 == n1-n0) {
+    else if (sized && m1-m0 == n1-n0) {
       // Accepting a little slowness for the uncommon case.
       if (S.iterator.slice(m0, m1).sameElements(W.iterator.slice(n0, n1))) m0
       else -1
     }
     // Now we know we actually need KMP search, so do it
     else S match {
-      case xs: IndexedSeq[B] => kmpIndexed(xs)
+      case xs: IndexedSeq[B] if sized => kmpIndexed(xs)
       case _ => kmpUnindexed()
     }
   }

@@ -41,7 +41,12 @@ class SeqTest extends AllocationTest {
     assertEquals(0, Vector(0, 1).indexOfSlice(Vector(0, 1)))
     assertEquals(1, Vector(0, 1, 2, 0, 1, 2).indexOfSlice(Vector(1, 2)))
     assertEquals(4, Vector(0, 1, 2, 0, 1, 2).indexOfSlice(Vector(1, 2), from = 2))
+    assertEquals(1, Vector(0, 1, 2).indexOfSlice(Vector(1, 2), from = -1))
     assertEquals(-1, List(0, 1).indexOfSlice(List(1, 2)))
+    assertEquals(1, List(0).indexOfSlice(Nil, from = 1))
+    assertEquals(-1, List(0).indexOfSlice(Nil, from = 2))
+    assertEquals(0, List(0).indexOfSlice(Nil, from = -1))
+    assertEquals(1, List(0, 1, 2).indexOfSlice(List(1, 2), from = -1))
   }
 
   @Test
