@@ -347,14 +347,17 @@ object Array extends FallbackArrayBuilding {
    *  `elem`.
    */
   def fill[T: ClassTag](n: Int)(elem: => T): Array[T] = {
-    val b = newBuilder[T]
-    b.sizeHint(n)
-    var i = 0
-    while (i < n) {
-      b += elem
-      i += 1
+    if (n <= 0) {
+      empty[T]
+    } else {
+      val array = new Array[T](n)
+      var i = 0
+      while (i < n) {
+        array(i) = elem
+        i += 1
+      }
+      array
     }
-    b.result()
   }
 
   /** Returns a two-dimensional array that contains the results of some element
