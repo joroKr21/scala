@@ -484,10 +484,26 @@ class LazyListLazinessTest {
     assertLazyAllSkipping(4)(_.indexOfSlice(1 to 3))
     assertLazyAllSkipping(10)(_.indexOfSlice(6 to 9, from = 5))
 
+    // single-element slice hits the `clipped()` branch
+    assertLazyAllSkipping(4)(_.indexOfSlice(Seq(3)))
+    // empty slice short-circuits
+    assertLazyAll(_.indexOfSlice(Nil))
+
+    // pattern also a LazyList (unknown pattern length triggers the pre-scan in kmpUnindexed)
+    assertLazyAllSkipping(6)(_.indexOfSlice(LazyList(3, 4, 5)))
+
     // check laziness of slice when it is a `LazyList`
     val checker = new OpLazinessChecker
     assertEquals(-1, LazyList.from(3).take(LazinessChecker.doubleCount).indexOfSlice(checker.lazyList))
     assertNotEvaluatedSkipping(checker, 1)
+  }
+
+  // `lastIndexOfSlice` is documented `willNotTerminateInf` so it must walk the whole list
+  // in the unbounded case. We verify that a bounded `end` really does bound how much of
+  // the list gets forced.
+  @Test
+  def lastIndexOfSlice_properlyLazy(): Unit = {
+    assertLazyAllSkipping(6)(_.lastIndexOfSlice(0 to 2, end = 5))
   }
 
   @Test
