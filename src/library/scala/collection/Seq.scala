@@ -462,12 +462,14 @@ trait SeqOps[+A, +CC[_], +C] extends Any
   def lastIndexOfSlice[B >: A](that: Seq[B], end: Int): Int = {
     val l = knownSize
     val tl = that.length
-    val clippedL = if (l < 0) end else math.min(l-tl, end)
 
     if (end < 0) -1
-    else if (tl < 1) clippedL
+    else if (tl < 1) math.min((if (l >= 0) l else length) - tl, end)
     else if (l >= 0 && l < tl) -1
-    else SeqOps.kmpSearch(S = toGenericSeq, m0 = 0, m1 = clippedL+tl, W = that, n0 = 0, n1 = tl, forward = false)
+    else {
+      val clippedL = if (l < 0) end else math.min(l - tl, end)
+      SeqOps.kmpSearch(S = toGenericSeq, m0 = 0, m1 = clippedL + tl, W = that, n0 = 0, n1 = tl, forward = false)
+    }
   }
 
   /** Finds last index where this $coll contains a given sequence as a slice.
@@ -1168,23 +1170,24 @@ object SeqOps {
       else
         kmpUnindexedN1(iter, moffset, n1b)
     }
-    def kmpUnindexedN1(iter: Iterator[B], moffset: Int, n1: Int): Int = {
-      val Wopt = kmpOptimizeWord(W, n0, n1, forward = true)
-      val T = kmpJumpTable(Wopt, n1-n0)
-      val cache = Array.ofDim[AnyRef](n1-n0)  // Ring buffer--need a quick way to do a look-behind
+    // `wlen` is the forced pattern length (outer `n1` may have been -1).
+    def kmpUnindexedN1(iter: Iterator[B], moffset: Int, wlen: Int): Int = {
+      val Wopt = kmpOptimizeWord(W, n0, wlen, forward = true)
+      val T = kmpJumpTable(Wopt, wlen-n0)
+      val cache = Array.ofDim[AnyRef](wlen-n0)  // Ring buffer--need a quick way to do a look-behind
       var largest = moffset
       var i = 0
       var m = moffset
       var answer = -1
-      while (m1 < 0 || m+m0+n1-n0 <= m1) {
+      while (m1 < 0 || m+m0+wlen-n0 <= m1) {
         while (i+m >= largest) {
           if (!iter.hasNext) return answer
-          cache(largest%(n1-n0)) = iter.next().asInstanceOf[AnyRef]
+          cache(largest%(wlen-n0)) = iter.next().asInstanceOf[AnyRef]
           largest += 1
         }
-        if (Wopt(i) == cache((i+m)%(n1-n0)).asInstanceOf[B]) {
+        if (Wopt(i) == cache((i+m)%(wlen-n0)).asInstanceOf[B]) {
           i += 1
-          if (i == n1-n0) {
+          if (i == wlen-n0) {
             if (forward) return m+m0
             else {
               i -= 1

@@ -124,6 +124,12 @@ class SeqTest extends AllocationTest {
     // LazyList source — (0,1,2,3,4,5,1,2) has matches at 1 and 6, latest is 6
     assertEquals(6, (0 to 5).to(LazyList).appendedAll(List(1, 2)).lastIndexOfSlice(List(1, 2)))
     assertEquals(1, LazyList(0, 1, 2, 0, 1, 2).lastIndexOfSlice(List(1, 2), end = 3))
+
+    // empty pattern on non-indexed sources — must return the (clipped) length
+    assertEquals(3, List(0, 1, 2).lastIndexOfSlice(Nil))
+    assertEquals(3, LazyList(0, 1, 2).lastIndexOfSlice(Nil))
+    assertEquals(2, List(0, 1, 2).lastIndexOfSlice(Nil, end = 2))
+    assertEquals(-1, List(0, 1, 2).lastIndexOfSlice(Nil, end = -1))
   }
 
   @Test
