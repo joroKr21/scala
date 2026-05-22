@@ -406,13 +406,17 @@ private[collection] final class INode[K, V](bn: MainNode[K, V], g: Gen, equiv: E
     GCAS_READ(ct).knownSize()
 
   /* this is a quiescent method! */
-  def string(lev: Int) = "%sINode -> %s".format("  " * lev, mainnode match {
-    case null => "<null>"
-    case tn: TNode[_, _] => "TNode(%s, %s, %d, !)".format(tn.k, tn.v, tn.hc)
-    case cn: CNode[_, _] => cn.string(lev)
-    case ln: LNode[_, _] => ln.string(lev)
-    case x => "<elem: %s>".format(x)
-  })
+  def string(lev: Int): String = {
+    val spaces = "  " * lev
+    val rhs = mainnode match {
+      case null => "<null>"
+      case tn: TNode[_, _] => s"TNode(${tn.k}, ${tn.v}, ${tn.hc}, !)"
+      case cn: CNode[_, _] => cn.string(lev)
+      case ln: LNode[_, _] => ln.string(lev)
+      case x => s"<elem: $x>"
+    }
+    s"${spaces}INode -> $rhs"
+  }
 
 }
 
@@ -442,7 +446,7 @@ private[concurrent] final class FailedNode[K, V](p: MainNode[K, V]) extends Main
 
   def knownSize: Int = throw new UnsupportedOperationException
 
-  override def toString = "FailedNode(%s)".format(p)
+  override def toString = s"FailedNode($p)"
 }
 
 
@@ -457,7 +461,7 @@ private[collection] final class SNode[K, V](final val k: K, final val v: V, fina
   def copyTombed = new TNode(k, v, hc)
   def copyUntombed = new SNode(k, v, hc)
   def kvPair = (k, v)
-  def string(lev: Int) = ("  " * lev) + "SNode(%s, %s, %x)".format(k, v, hc)
+  def string(lev: Int) = ("  " * lev) + s"SNode($k, $v, ${hc.toHexString})"
 }
 
 // Tomb Node, used to ensure proper ordering during removals
@@ -469,7 +473,7 @@ private[collection] final class TNode[K, V](final val k: K, final val v: V, fina
   def kvPair = (k, v)
   def cachedSize(ct: AnyRef): Int = 1
   def knownSize: Int = 1
-  def string(lev: Int) = ("  " * lev) + "TNode(%s, %s, %x, !)".format(k, v, hc)
+  def string(lev: Int) = ("  " * lev) + s"TNode($k, $v, ${hc.toHexString}, !)"
 }
 
 // List Node, leaf node that handles hash collisions
@@ -510,7 +514,7 @@ private[collection] final class LNode[K, V](val entries: List[(K, V)], equiv: Eq
 
   def knownSize: Int = -1 // shouldn't ever be empty, and the size of a list is not known
 
-  def string(lev: Int) = (" " * lev) + "LNode(%s)".format(entries.mkString(", "))
+  def string(lev: Int) = (" " * lev) + s"LNode(${entries.mkString(", ")})"
 
 }
 
@@ -637,7 +641,7 @@ private[collection] final class CNode[K, V](val bitmap: Int, val array: Array[Ba
     new CNode[K, V](bmp, tmparray, gen).toContracted(lev)
   }
 
-  def string(lev: Int): String = "CNode %x\n%s".format(bitmap, array.map(_.string(lev + 1)).mkString("\n"))
+  def string(lev: Int): String = s"CNode ${bitmap.toHexString}\n" + array.map(_.string(lev + 1)).mkString("\n")
 
   override def toString = {
     def elems: Seq[String] = array.flatMap {
@@ -645,7 +649,7 @@ private[collection] final class CNode[K, V](val bitmap: Int, val array: Array[Ba
       case in: INode[K, V] @uc => Iterable.single(augmentString(in.toString).drop(14) + "(" + in.gen + ")")
       case basicNode           => throw new MatchError(basicNode)
     }
-    f"CNode(sz: ${elems.size}%d; ${elems.sorted.mkString(", ")})"
+    s"CNode(sz: ${elems.size}; ${elems.sorted.mkString(", ")})"
   }
 }
 

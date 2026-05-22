@@ -155,7 +155,7 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
    */
   class GroupedIterator[B >: A](self: Iterator[B], size: Int, step: Int) extends AbstractIterator[immutable.Seq[B]] {
 
-    require(size >= 1 && step >= 1, f"size=$size%d and step=$step%d, but both must be positive")
+    require(size >= 1 && step >= 1, s"size=$size and step=$step, but both must be positive")
 
     private[this] var buffer: Array[B] = null                 // current result
     private[this] var prev: Array[B] = null                   // if sliding, overlap from previous result
