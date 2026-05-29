@@ -16,6 +16,7 @@
 package scala.tools.nsc
 package javac
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import symtab.Flags
 import JavaTokens._
@@ -262,13 +263,16 @@ trait JavaParsers extends ast.parser.ParsersCommon with JavaScanners {
       t
     }
 
-    def optArrayBrackets(tpt: Tree): Tree =
+    @tailrec
+    final def optArrayBrackets(tpt: Tree): Tree = {
+      annotations()
       if (in.token == LBRACKET) {
         val tpt1 = atPos(in.pos) { arrayOf(tpt) }
         in.nextToken()
         accept(RBRACKET)
         optArrayBrackets(tpt1)
       } else tpt
+    }
 
     def basicType(): Tree =
       atPos(in.pos) {
