@@ -313,7 +313,8 @@ trait JavaParsers extends ast.parser.ParsersCommon with JavaScanners {
 
     def typeArgs(t: Tree): Tree = {
       val wildcards = new ListBuffer[TypeDef]
-      def typeArg(): Tree =
+      def typeArg(): Tree = {
+        annotations()
         if (in.token == QMARK) {
           val pos = in.currentPos
           in.nextToken()
@@ -331,6 +332,7 @@ trait JavaParsers extends ast.parser.ParsersCommon with JavaScanners {
         } else {
           typ()
         }
+      }
       if (in.token == LT) {
         in.nextToken()
         val t1 = convertToTypeId(t)
