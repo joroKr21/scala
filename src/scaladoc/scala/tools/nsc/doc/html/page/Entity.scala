@@ -165,8 +165,8 @@ trait EntityPage extends HtmlPage {
         Div(id="textfilter", elems=
           Span(`class`= "input", elems=
             Input(autocapitalize="none", placeholder="Search", id="index-input", `type`="text", accesskey="/") ::
-            I(`class`= "clear material-icons", elems=Txt("\uE14C")) ::
-            I(id="search-icon", `class`= "material-icons", elems=Txt("\uE8B6"))
+            I(`class`= "clear svg-icon", elems=Raw(Icons.clear)) ::
+            I(id="search-icon", `class`= "svg-icon", elems=Raw(Icons.search))
           )
          ) :: NoElems
        )
@@ -234,11 +234,11 @@ trait EntityPage extends HtmlPage {
       else List(Div(id="mbrsel", elems=
         Div(`class`="toggle") ::
         Div(id="memberfilter", elems=
-          I(`class`="material-icons arrow", elems= Txt("\uE037")) ::
+          I(`class`="svg-icon arrow", elems= Raw(Icons.arrow)) ::
           Span(`class`="input", elems=
             Input(id="mbrsel-input", placeholder="Filter all members", `type`="text", accesskey="/")
           ) ::
-          I(`class`="clear material-icons", elems=Txt("\uE14C"))
+          I(`class`="clear svg-icon", elems=Raw(Icons.clear))
         ) ::
         Div(id="filterby", elems=
           Div(id="order", elems=
@@ -580,7 +580,7 @@ trait EntityPage extends HtmlPage {
         case nte: NonTemplateMemberEntity if nte.isUseCase =>
           Div(`class`= "full-signature-block toggleContainer", elems=
             Span(`class`= "toggle", elems=
-              I(`class`= "material-icons", elems=Txt("\uE037")) ::
+              I(`class`= "svg-icon", elems=Raw(Icons.arrow)) ::
               Txt("Full Signature") :: NoElems
             ) ::
             Div(`class`= "hiddenContent full-signature-usecase", elems= signature(nte.useCaseOf.get,isSelf = true))
