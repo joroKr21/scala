@@ -15,7 +15,7 @@ To contribute here, please open a [pull request](https://help.github.com/article
 
 If your change affects the standard library, see CONTRIBUTING.md for remarks about what sort of changes might be accepted in Scala 2 and/or Scala 3.
 
-We require that you sign the [Scala CLA](https://contribute.akka.io/contribute/cla/scala) before we can merge any of your work, to protect Scala's future as open source software.
+We require that you sign the [Scala CLA](https://cla.scala-lang.org/scala/scala) before we can merge any of your work, to protect Scala's future as open source software.
 
 The general workflow is as follows.
 1. Find/file an issue in scala/bug (or submit a well-documented PR right away!).

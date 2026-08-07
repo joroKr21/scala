@@ -9,7 +9,7 @@ We're happy to guide you through the process once you've submitted your PR.
 
 ## What kind of PR are you submitting?
 
-Regardless of the nature of your Pull Request, we have to ask you to digitally sign the [Scala CLA](https://contribute.akka.io/cla/scala), to protect the OSS nature of the code base.
+Regardless of the nature of your Pull Request, we have to ask you to digitally sign the [Scala CLA](https://cla.scala-lang.org/scala/scala), to protect the OSS nature of the code base.
 
 You don't need to submit separate PRs for 2.12.x and 2.13.x. Any change accepted on 2.12.x will, in time, be merged onto 2.13.x too.
 
