@@ -7,7 +7,7 @@ standard library, compiler, and language spec.
 
 To contribute in this repo, please open a [pull request](https://help.github.com/articles/using-pull-requests/#fork--pull) from your fork of this repository.
 
-We do have to ask you to sign the [Scala CLA](http://contribute.akka.io/cla/scala) before we can merge any of your work, to protect its open source nature.
+We do have to ask you to sign the [Scala CLA](http://cla.scala-lang.org/scala/scala) before we can merge any of your work, to protect its open source nature.
 
 For more information on building and developing the core of Scala, make sure to read
 the rest of this README!
