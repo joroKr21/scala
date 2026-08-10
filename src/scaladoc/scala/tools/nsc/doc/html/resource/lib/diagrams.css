@@ -1,32 +1,16 @@
-@font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: url(MaterialIcons-Regular.eot);
-  src: local('Material Icons'),
-  local('MaterialIcons-Regular'),
-  url(MaterialIcons-Regular.woff) format('woff'),
-  url(MaterialIcons-Regular.ttf) format('truetype');
+.svg-icon {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+  outline: none;
 }
 
-.material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
+.svg-icon svg {
   display: inline-block;
+  vertical-align: middle;
   width: 1em;
   height: 1em;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'liga';
+  outline: none;
 }
 
 .diagram-container {
@@ -39,7 +23,7 @@
 
 .diagram {
   overflow: hidden;
-  padding-top:15px;
+  padding-top: 15px;
 }
 
 .diagram svg {
@@ -47,23 +31,27 @@
   position: absolute;
   visibility: hidden;
   margin: auto;
+  border: 1px solid #999;
+  overflow: hidden;
 }
 
 .diagram-help {
-  float:right;
-  display:none;
+  float: right;
+  display: none;
 }
 
 .magnifying {
-  cursor: -webkit-zoom-in ! important;
-  cursor: -moz-zoom-in ! important;
+  cursor: -webkit-zoom-in !important;
+  cursor: -moz-zoom-in !important;
   cursor: pointer;
 }
 
 #close-link {
   position: absolute;
   z-index: 100;
-  font-family: Arial, sans-serif;
+  font-family:
+    system-ui, "Segoe UI", "Noto Sans", "Helvetica Neue", Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 10pt;
   text-decoration: underline;
   color: #315479;
@@ -95,7 +83,10 @@
 
 .diagram-container.full-screen > div.diagram {
   position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   margin: auto;
 }
 
@@ -107,6 +98,9 @@
 }
 
 #diagram-controls > button.diagram-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 1.25em;
   height: 2.5em;
   width: 2.5em;
@@ -116,7 +110,6 @@
   float: left;
   margin: 0 0.1em;
   cursor: pointer;
-  line-height: 0.9;
   outline: none;
 }
 
@@ -124,12 +117,12 @@
   background-color: #e2e2e2;
 }
 
-#diagram-controls > button.diagram-btn > i.material-icons {
-  font-size: 1.5em;
+#diagram-controls > button.diagram-btn > i.svg-icon {
+  font-size: 20px;
 }
 
 svg a {
-  cursor:pointer;
+  cursor: pointer;
 }
 
 svg text {
@@ -140,11 +133,11 @@ svg text {
  * centered (does not work in all browsers)
  */
 svg .node text {
-  transform: translate(0px,1px);
-  -ms-transform: translate(0px,1px);
-  -webkit-transform: translate(0px,1px);
-  -o-transform: translate(0px,1px);
-  -moz-transform: translate(0px,1px);
+  transform: translate(0px, 1px);
+  -ms-transform: translate(0px, 1px);
+  -webkit-transform: translate(0px, 1px);
+  -o-transform: translate(0px, 1px);
+  -moz-transform: translate(0px, 1px);
 }
 
 /* hover effect for edges */
@@ -152,18 +145,21 @@ svg .node text {
 svg .edge.over text,
 svg .edge.implicit-incoming.over polygon,
 svg .edge.implicit-outgoing.over polygon {
-  fill: #103A51;
+  fill: #103a51;
 }
 
 svg .edge.over path,
 svg .edge.over polygon {
-  stroke: #103A51;
+  stroke: #103a51;
 }
 
 /* for hover effect on nodes in diagrams, edit the following */
-svg.class-diagram .node {}
-svg.class-diagram .node.this {}
-svg.class-diagram .node.over {}
+svg.class-diagram .node {
+}
+svg.class-diagram .node.this {
+}
+svg.class-diagram .node.over {
+}
 
 svg .node.over polygon {
   stroke: #202020;
@@ -188,7 +184,6 @@ svg.class-diagram .node.this.type.over polygon {
   fill: #098552;
   fill: #04663e;
 }
-
 
 svg.package-diagram .node.object.over polygon {
   fill: #183377;

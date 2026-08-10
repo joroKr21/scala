@@ -22,7 +22,7 @@ import base.comment._
 
 import scala.reflect.internal.Reporter
 import scala.collection.mutable
-import scala.xml.{NodeSeq, Text, UnprefixedAttribute}
+import scala.xml.{NodeSeq, Text, Unparsed, UnprefixedAttribute}
 import scala.language.postfixOps
 
 import model._
@@ -169,8 +169,8 @@ trait EntityPage extends HtmlPage {
         <div id="textfilter">
           <span class="input">
             <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/"/>
-            <i class="clear material-icons">&#xE14C;</i>
-            <i id="search-icon" class="material-icons">&#xE8B6;</i>
+            <i class="clear svg-icon">{Unparsed(Icons.clear)}</i>
+            <i id="search-icon" class="svg-icon">{Unparsed(Icons.search)}</i>
           </span>
         </div>
     </div>
@@ -238,11 +238,11 @@ trait EntityPage extends HtmlPage {
       <div id="mbrsel">
         <div class='toggle'></div>
         <div id='memberfilter'>
-          <i class="material-icons arrow">&#xE037;</i>
+          <i class="svg-icon arrow">{Unparsed(Icons.arrow)}</i>
           <span class='input'>
             <input id='mbrsel-input' placeholder='Filter all members' type='text' accesskey='/'/>
           </span>
-          <i class="clear material-icons">&#xE14C;</i>
+          <i class="clear svg-icon">{Unparsed(Icons.clear)}</i>
         </div>
         <div id='filterby'>
           <div id="order">
@@ -636,7 +636,7 @@ trait EntityPage extends HtmlPage {
         case nte: NonTemplateMemberEntity if nte.isUseCase =>
           <div class="full-signature-block toggleContainer">
             <span class="toggle">
-              <i class="material-icons">&#xE037;</i>
+              <i class="svg-icon">{ Icons.arrow }</i>
               Full Signature
             </span>
             <div class="hiddenContent full-signature-usecase">{ signature(nte.useCaseOf.get,isSelf = true) }</div>
@@ -826,9 +826,9 @@ trait EntityPage extends HtmlPage {
                 </span>
                 <div class="diagram" id={ id }>{ diagramSvg }</div>
                 <div id="diagram-controls" class="hiddenContent">
-                  <button id="diagram-zoom-out" class="diagram-btn"><i class="material-icons">&#xE15B;</i></button>
-                  <button id="diagram-zoom-in" class="diagram-btn"><i class="material-icons">&#xE145;</i></button>
-                  <button title="Toggle full-screen" id="diagram-fs" class="diagram-btn to-full"><i class="material-icons">&#xE5D0;</i></button>
+                  <button id="diagram-zoom-out" class="diagram-btn"><i class="svg-icon">{Unparsed(Icons.zoomOut)}</i></button>
+                  <button id="diagram-zoom-in" class="diagram-btn"><i class="svg-icon">{Unparsed(Icons.zoomIn)}</i></button>
+                  <button title="Toggle full-screen" id="diagram-fs" class="diagram-btn to-full"><i class="svg-icon">{Unparsed(Icons.fullscreen)}</i></button>
                 </div>
               </div>
             } else NodeSeq.Empty
