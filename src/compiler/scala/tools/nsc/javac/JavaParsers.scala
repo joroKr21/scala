@@ -268,13 +268,15 @@ trait JavaParsers extends ast.parser.ParsersCommon with JavaScanners {
     }
 
     @tailrec
-    final def optArrayBrackets(tpt: Tree): Tree =
+    final def optArrayBrackets(tpt: Tree): Tree = {
+      annotations()
       if (in.token == LBRACKET) {
         val tpt1 = atPos(in.pos) { arrayOf(tpt) }
         in.nextToken()
         accept(RBRACKET)
         optArrayBrackets(tpt1)
       } else tpt
+    }
 
     def basicType(): Tree =
       atPos(in.pos) {
@@ -322,7 +324,8 @@ trait JavaParsers extends ast.parser.ParsersCommon with JavaScanners {
 
     def typeArgs(t: Tree): Tree = {
       val wildcards = new ListBuffer[TypeDef]
-      def typeArg(): Tree =
+      def typeArg(): Tree = {
+        annotations()
         if (in.token == QMARK) {
           val pos = in.currentPos
           in.nextToken()
@@ -340,6 +343,7 @@ trait JavaParsers extends ast.parser.ParsersCommon with JavaScanners {
         } else {
           typ()
         }
+      }
       if (in.token == LT) {
         in.nextToken()
         val t1 = convertToTypeId(t)
