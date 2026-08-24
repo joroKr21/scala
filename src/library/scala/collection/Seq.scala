@@ -1134,11 +1134,12 @@ object SeqOps {
       def clipL(x: Int, y: Int) = if (x > y) x else -1
       if (forward) {
         val x = S.indexOf(W(n0), m0)
-        if (m1 >= 0) clipR(x, m1)
-        else x
+        if (m1 >= 0) clipR(x, m1) else x
       }
-      else
-        clipL(S.lastIndexOf(W(n0), m1-1), m0-1)
+      else {
+        val x = if (m1 >= 0) S.lastIndexOf(W(n0), m1-1) else S.lastIndexOf(W(n0))
+        clipL(x, m0-1)
+      }
     }
 
     // We had better not index into S directly!
@@ -1219,7 +1220,8 @@ object SeqOps {
     }
     // Now we know we actually need KMP search, so do it
     else S match {
-      case xs: IndexedSeq[B] if sized => kmpIndexed(xs)
+      // `m1` may exceed the length if the source is indexed but reports an unknown `knownSize`
+      case xs: IndexedSeq[B] if sized && m1 <= xs.length => kmpIndexed(xs)
       case _ => kmpUnindexed()
     }
   }
