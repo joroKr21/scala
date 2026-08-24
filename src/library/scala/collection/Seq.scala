@@ -421,7 +421,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
 
   /** Finds first index at or after a start index where this $coll contains a given sequence as a slice.
    *  $mayNotTerminateInf
-   *  @param  that    the pattern sequence to search for
+   *  @param  that    the pattern sequence to search for, must be finite
    *  @param  from    the start index
    *  @return  the first index `>= from` such that the elements of this $coll starting at this index
    *           match the elements of sequence `that`, or `-1` if no such subsequence exists.
@@ -443,7 +443,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
 
   /** Finds first index where this $coll contains a given sequence as a slice.
    *  $mayNotTerminateInf
-   *  @param  that    the sequence to test
+   *  @param  that    the sequence to test, must be finite
    *  @return  the first index `>= 0` such that the elements of this $coll starting at this index
    *           match the elements of sequence `that`, or `-1` if no such subsequence exists.
    */
@@ -454,7 +454,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
    *
    *  $willNotTerminateInf
    *
-   *  @param  that    the sequence to test
+   *  @param  that    the sequence to test, must be finite
    *  @param  end     the end index
    *  @return  the last index `<= end` such that the elements of this $coll starting at this index
    *           match the elements of sequence `that`, or `-1` if no such subsequence exists.
@@ -468,6 +468,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
     else if (l >= 0 && l < tl) -1
     else {
       val clippedL = if (l < 0) end else math.min(l - tl, end)
+      // if `clippedL + tl` overflows that's correct, a negative `m1` means "unbounded"
       SeqOps.kmpSearch(S = toGenericSeq, m0 = 0, m1 = clippedL + tl, W = that, n0 = 0, n1 = tl, forward = false)
     }
   }
@@ -476,7 +477,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
     *
     *  $willNotTerminateInf
     *
-    *  @param  that    the sequence to test
+    *  @param  that    the sequence to test, must be finite
     *  @return  the last index such that the elements of this $coll starting at this index
     *           match the elements of sequence `that`, or `-1` if no such subsequence exists.
     */
@@ -502,7 +503,7 @@ trait SeqOps[+A, +CC[_], +C] extends Any
 
   /** Tests whether this $coll contains a given sequence as a slice.
    *  $mayNotTerminateInf
-   *  @param  that    the sequence to test
+   *  @param  that    the sequence to test, must be finite
    *  @return  `true` if this $coll contains a slice with the same elements
    *           as `that`, otherwise `false`.
    */
